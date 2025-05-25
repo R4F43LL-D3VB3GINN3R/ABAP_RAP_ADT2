@@ -1,0 +1,19 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'CDS for Customers'
+@Metadata.ignorePropagatedAnnotations: true
+define root view entity ZDD_R_CUSTOMER as select from zrla_customer
+{
+    key customer_id as CustomerId,
+    firstname as Firstname,
+    lastname as Lastname,
+    title as Title,
+    phone as Phone,
+    email as Email,
+    gender as Gender,
+    website as Website,
+    createdby as Createdby,
+    createdat as Createdat,
+    changedby as Changedby,
+    changedat as Changedat,
+    birthdate as Birthdate
+}
