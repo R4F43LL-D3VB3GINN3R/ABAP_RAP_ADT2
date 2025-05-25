@@ -1,0 +1,21 @@
+managed implementation in class zbp_dd_r_customer unique;
+strict ( 2 );
+
+define behavior for ZDD_R_CUSTOMER alias Customer
+persistent table zrla_customer
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+
+  field ( numbering : managed, readonly : update ) CustomerId;
+
+  mapping for zrla_customer corresponding {
+    CustomerId = customer_id;
+    FirstName  = firstname;
+    LastName   = lastname;
+  }
+}
