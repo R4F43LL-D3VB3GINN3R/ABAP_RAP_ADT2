@@ -7,10 +7,12 @@ CLASS zcl_if_runtest DEFINITION
     INTERFACES if_oo_adt_classrun.
 
     CLASS-METHODS generate_customers.
-    CLASS-METHODS create_customer.
+    CLASS-METHODS create_customer1.
     CLASS-METHODS create_customer2.
     CLASS-METHODS read_customer1.
     CLASS-METHODS read_customer2.
+    CLASS-METHODS update_customer.
+    CLASS-METHODS delete_customer.
 
     DATA: go_runtime TYPE REF TO zcl_if_runtest.
     DATA: gt_customers TYPE TABLE OF zrla_customer.
@@ -28,10 +30,12 @@ CLASS zcl_if_runtest IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
 
 *    generate_customers( ).
-*    create_customer( ).
+*    create_customer1( ).
 *    create_customer2( ).
 *    read_customer1( ).
-    read_customer2( ).
+*    read_customer2( ).
+*    update_customer( ).
+    delete_customer( ).
 
     IF sy-subrc EQ 0.
       out->write( | OK | ).
@@ -39,30 +43,11 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD create_customer2.
+  method delete_customer.
 
-    generate_customers( ).
+  endmethod.
 
-    MODIFY ENTITIES OF zdd_r_customer
-     ENTITY Customer
-      CREATE AUTO FILL CID
-      SET FIELDS WITH VALUE #( (
-       FirstName = 'Dummy2'
-       LastName  = 'Dumb2'
-       ) )
-      FAILED   DATA(ls_create_failed2)
-      REPORTED DATA(ls_create_reported2)
-      MAPPED   DATA(ls_create_mapped2).
-
-    IF ls_create_failed2 IS NOT INITIAL.
-      COMMIT ENTITIES.
-    ELSE.
-      ROLLBACK ENTITIES.
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD create_customer.
+  METHOD create_customer1.
 
     DATA: system_uuid TYPE REF TO if_system_uuid.
     system_uuid = cl_uuid_factory=>create_system_uuid( ).
@@ -95,6 +80,29 @@ CLASS zcl_if_runtest IMPLEMENTATION.
      MAPPED   DATA(ls_create_mapped).
 
     IF ls_create_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD create_customer2.
+
+    generate_customers( ).
+
+    MODIFY ENTITIES OF zdd_r_customer
+     ENTITY Customer
+      CREATE AUTO FILL CID
+      SET FIELDS WITH VALUE #( (
+       FirstName = 'Dummy2'
+       LastName  = 'Dumb2'
+       ) )
+      FAILED   DATA(ls_create_failed2)
+      REPORTED DATA(ls_create_reported2)
+      MAPPED   DATA(ls_create_mapped2).
+
+    IF ls_create_failed2 IS NOT INITIAL.
       COMMIT ENTITIES.
     ELSE.
       ROLLBACK ENTITIES.
@@ -135,6 +143,28 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     RESULT lt_read_data2.
 
     IF lt_read_data2 IS NOT INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD update_customer.
+
+    MODIFY ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    UPDATE
+    SET FIELDS WITH VALUE #( (
+        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+        FirstName       = 'Name Dummy'
+        LastName        = 'Updated'
+    ) )
+    FAILED   DATA(ls_update_failed)
+    REPORTED DATA(ls_update_reported)
+    MAPPED   DATA(ls_update_mapped).
+
+    IF ls_update_failed IS INITIAL.
       COMMIT ENTITIES.
     ELSE.
       ROLLBACK ENTITIES.
