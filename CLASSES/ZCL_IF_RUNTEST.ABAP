@@ -43,9 +43,24 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   ENDMETHOD.
 
-  method delete_customer.
+  METHOD delete_customer.
 
-  endmethod.
+    MODIFY ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    DELETE FROM VALUE #( (
+        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+    ) )
+    FAILED   DATA(ls_delete_data)
+    REPORTED DATA(ls_delete_reported)
+    MAPPED   DATA(ls_delete_mapped).
+
+    IF ls_delete_data IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
 
   METHOD create_customer1.
 
