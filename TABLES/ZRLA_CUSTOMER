@@ -1,0 +1,23 @@
+@EndUserText.label : 'Table for Customers'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table zrla_customer {
+
+  key client      : abap.clnt not null;
+  key customer_id : sysuuid_x16 not null;
+  firstname       : ad_namefir;
+  lastname        : ad_namelas;
+  title           : ad_title;
+  phone           : ad_tlnmbr;
+  email           : abap.char(241);
+  gender          : abap.char(1);
+  website         : abap.char(255);
+  createdby       : syuname;
+  createdat       : timestamp;
+  changedby       : syuname;
+  changedat       : timestamp;
+  birthdate       : datum;
+
+}
