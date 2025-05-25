@@ -7,8 +7,10 @@ CLASS zcl_if_runtest DEFINITION
     INTERFACES if_oo_adt_classrun.
 
     CLASS-METHODS generate_customers.
-    CLASS-METHODS create_customer
-      IMPORTING create1 TYPE abap_bool.
+    CLASS-METHODS create_customer.
+    CLASS-METHODS create_customer2.
+    CLASS-METHODS read_customer1.
+    CLASS-METHODS read_customer2.
 
     DATA: go_runtime TYPE REF TO zcl_if_runtest.
     DATA: gt_customers TYPE TABLE OF zrla_customer.
@@ -26,10 +28,36 @@ CLASS zcl_if_runtest IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
 
 *    generate_customers( ).
-    create_customer( create1 = 'X' ).
+*    create_customer( ).
+*    create_customer2( ).
+*    read_customer1( ).
+    read_customer2( ).
 
     IF sy-subrc EQ 0.
       out->write( | OK | ).
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD create_customer2.
+
+    generate_customers( ).
+
+    MODIFY ENTITIES OF zdd_r_customer
+     ENTITY Customer
+      CREATE AUTO FILL CID
+      SET FIELDS WITH VALUE #( (
+       FirstName = 'Dummy2'
+       LastName  = 'Dumb2'
+       ) )
+      FAILED   DATA(ls_create_failed2)
+      REPORTED DATA(ls_create_reported2)
+      MAPPED   DATA(ls_create_mapped2).
+
+    IF ls_create_failed2 IS NOT INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
     ENDIF.
 
   ENDMETHOD.
@@ -42,38 +70,74 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     DATA: lt_create_data TYPE TABLE FOR CREATE zdd_r_customer,
           ls_create_data LIKE LINE OF lt_create_data.
 
-    generate_customers(  ).
+    generate_customers( ).
 
-    IF create1 EQ 'X'.
+    TRY.
+        DATA(lv_uuid) = system_uuid->create_uuid_x16( ).
+      CATCH cx_uuid_error.
+        EXIT.
+    ENDTRY.
 
-      TRY.
-          DATA(lv_uuid) = system_uuid->create_uuid_x16( ).
-        CATCH cx_uuid_error.
-          EXIT.
-      ENDTRY.
+    ls_create_data-%cid       = lv_uuid.
+    ls_create_data-Firstname  = 'Dummy'.
+    ls_create_data-Lastname   = 'Dumb'.
 
-      ls_create_data-%cid       = lv_uuid.
-      ls_create_data-Firstname  = 'Dummy'.
-      ls_create_data-Lastname   = 'Dumb'.
+    ls_create_data-%control-Firstname = if_abap_behv=>mk-on.
+    ls_create_data-%control-LastName  = if_abap_behv=>mk-on.
 
-      ls_create_data-%control-Firstname  = if_abap_behv=>mk-on.
-      ls_create_data-%control-LastName   = if_abap_behv=>mk-on.
+    APPEND ls_create_data TO lt_create_data.
 
-      APPEND ls_create_data TO lt_create_data.
+    MODIFY ENTITIES OF zdd_r_customer
+     ENTITY Customer
+     CREATE FROM lt_create_data
+     FAILED   DATA(ls_create_failed)
+     REPORTED DATA(ls_create_reported)
+     MAPPED   DATA(ls_create_mapped).
 
-      MODIFY ENTITIES OF zdd_r_customer
-       ENTITY Customer
-       CREATE FROM lt_create_data
-       FAILED   DATA(ls_create_failed)
-       REPORTED DATA(ls_create_reported)
-       MAPPED   DATA(ls_create_mapped).
+    IF ls_create_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
 
-      IF ls_create_failed IS INITIAL.
-        COMMIT ENTITIES.
-      ELSE.
-        ROLLBACK ENTITIES.
-      ENDIF.
+  ENDMETHOD.
 
+  METHOD read_customer1.
+
+    DATA: lt_read_data TYPE TABLE FOR READ RESULT zdd_r_customer.
+
+    READ ENTITIES OF zdd_r_customer
+     ENTITY Customer
+      FIELDS ( Firstname )
+      WITH VALUE #( (
+        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+       ) )
+      RESULT lt_read_data.
+
+    IF lt_read_data IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD read_customer2.
+
+    DATA: lt_read_data2 TYPE TABLE FOR READ RESULT zdd_r_customer.
+
+    READ ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    ALL FIELDS WITH
+    VALUE #( (
+        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+    ) )
+    RESULT lt_read_data2.
+
+    IF lt_read_data2 IS NOT INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
     ENDIF.
 
   ENDMETHOD.
