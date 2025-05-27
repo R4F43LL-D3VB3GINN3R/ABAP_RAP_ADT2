@@ -6,6 +6,7 @@ CLASS zcl_if_runtest DEFINITION
   PUBLIC SECTION.
     INTERFACES if_oo_adt_classrun.
 
+    "CRUD OPERATIONS
     CLASS-METHODS generate_customers.
     CLASS-METHODS create_customer1.
     CLASS-METHODS create_customer2.
@@ -13,6 +14,9 @@ CLASS zcl_if_runtest DEFINITION
     CLASS-METHODS read_customer2.
     CLASS-METHODS update_customer.
     CLASS-METHODS delete_customer.
+
+    "ACTION OPERATIONS
+    CLASS-METHODS set_to_archived.
 
     DATA: go_runtime TYPE REF TO zcl_if_runtest.
     DATA: gt_customers TYPE TABLE OF zrla_customer.
@@ -27,15 +31,25 @@ ENDCLASS.
 
 CLASS zcl_if_runtest IMPLEMENTATION.
 
+  METHOD set_to_archived.
+
+    MODIFY ENTITIES OF zdd_r_customer
+      ENTITY Customer
+      EXECUTE set_to_archived FROM VALUE #( (
+        %tky-CustomerId =  'FA2C5161A2031FD08EB0F813B024AA03'
+      ) ).
+
+  ENDMETHOD.
+
   METHOD if_oo_adt_classrun~main.
 
-*    generate_customers( ).
+    generate_customers( ).
 *    create_customer1( ).
 *    create_customer2( ).
 *    read_customer1( ).
 *    read_customer2( ).
 *    update_customer( ).
-    delete_customer( ).
+*    delete_customer( ).
 
     IF sy-subrc EQ 0.
       out->write( | OK | ).
@@ -223,6 +237,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
       ls_customer-changedby   = cl_abap_context_info=>get_user_technical_name( ).
       ls_customer-changedat   = cl_abap_context_info=>get_system_date( ).
       ls_customer-birthdate   = |1990{ lv_number }01|.
+      ls_customer-archived    = ''.
       APPEND ls_customer TO lt_customers.
       CLEAR ls_customer.
 
