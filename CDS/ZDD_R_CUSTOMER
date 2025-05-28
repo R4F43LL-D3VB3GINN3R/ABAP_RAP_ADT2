@@ -11,9 +11,16 @@ define root view entity ZDD_R_CUSTOMER as select from zrla_customer
     email as Email,
     gender as Gender,
     website as Website,
+    birthdate as Birthdate,
+    
+    @Semantics.user.createdBy: true
     createdby as Createdby,
+    @Semantics.systemDateTime.createdAt: true
     createdat as Createdat,
+    @Semantics.user.lastChangedBy: true
     changedby as Changedby,
+    @Semantics.systemDateTime.lastChangedAt: true
     changedat as Changedat,
-    birthdate as Birthdate
+    
+    archived as Archived
 }
