@@ -27,8 +27,6 @@ CLASS zcl_if_runtest DEFINITION
   PRIVATE SECTION.
 ENDCLASS.
 
-
-
 CLASS zcl_if_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
@@ -67,9 +65,11 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     ls_create_data-%cid       = lv_uuid.
     ls_create_data-Firstname  = 'Dummy'.
     ls_create_data-Lastname   = 'Dumb'.
+    ls_create_data-Gender     = 'M'.
 
     ls_create_data-%control-Firstname = if_abap_behv=>mk-on.
     ls_create_data-%control-LastName  = if_abap_behv=>mk-on.
+    ls_create_data-%control-Gender    = if_abap_behv=>mk-on.
 
     APPEND ls_create_data TO lt_create_data.
 
@@ -80,7 +80,10 @@ CLASS zcl_if_runtest IMPLEMENTATION.
      REPORTED DATA(ls_create_reported)
      MAPPED   DATA(ls_create_mapped).
 
-    IF ls_create_failed IS INITIAL.
+    "get response for validation
+    COMMIT ENTITIES RESPONSE OF zdd_r_customer REPORTED DATA(response).
+
+    IF ls_create_failed IS INITIAL AND response IS INITIAL.
       COMMIT ENTITIES.
     ELSE.
       ROLLBACK ENTITIES.
@@ -173,7 +176,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   ENDMETHOD.
 
-    METHOD delete_customer.
+  METHOD delete_customer.
 
     MODIFY ENTITIES OF zdd_r_customer
     ENTITY Customer
@@ -192,7 +195,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   ENDMETHOD.
 
-    METHOD set_to_archived.
+  METHOD set_to_archived.
 
     MODIFY ENTITIES OF zdd_r_customer
       ENTITY Customer
