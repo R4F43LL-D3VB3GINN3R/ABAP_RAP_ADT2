@@ -68,7 +68,27 @@ CLASS lhc_Customer IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validate_gender.
-  
+
+    READ ENTITY IN LOCAL MODE zdd_r_customer
+    FIELDS ( Gender ) WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_customers).
+
+    LOOP AT lt_customers INTO DATA(ls_customer).
+
+      IF ls_customer-Gender NE 'M' AND  ls_customer-Gender NE 'F'.
+
+        APPEND VALUE #( %tky = ls_customer-%tky ) TO failed-customer.
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+            %msg = new_message_with_text(
+                severity = if_abap_behv_message=>severity-error
+                text     = 'Choose M or F for Gender'
+            ) )
+        TO reported-customer.
+
+      ENDIF.
+
+    ENDLOOP.
+
   ENDMETHOD.
 
 ENDCLASS.
