@@ -31,57 +31,19 @@ ENDCLASS.
 
 CLASS zcl_if_runtest IMPLEMENTATION.
 
-  METHOD set_to_archived.
-
-    MODIFY ENTITIES OF zdd_r_customer
-      ENTITY Customer
-      EXECUTE set_to_archived FROM VALUE #( (
-        %tky-CustomerId =  '72B8924CCC321FD08EF54B601D6B199E'
-      ) )
-     FAILED   DATA(ls_action_failed)
-     REPORTED DATA(ls_action_reported)
-     MAPPED   DATA(ls_action_mapped).
-
-    IF ls_action_failed IS INITIAL.
-      COMMIT ENTITIES.
-    ELSE.
-      ROLLBACK ENTITIES.
-    ENDIF.
-
-  ENDMETHOD.
-
   METHOD if_oo_adt_classrun~main.
 
 *    generate_customers( ).
-*    create_customer1( ).
+    create_customer1( ).
 *    create_customer2( ).
 *    read_customer1( ).
 *    read_customer2( ).
 *    update_customer( ).
 *    delete_customer( ).
-    set_to_archived( ).
+*    set_to_archived( ).
 
     IF sy-subrc EQ 0.
       out->write( | OK | ).
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD delete_customer.
-
-    MODIFY ENTITIES OF zdd_r_customer
-    ENTITY Customer
-    DELETE FROM VALUE #( (
-        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
-    ) )
-    FAILED   DATA(ls_delete_data)
-    REPORTED DATA(ls_delete_reported)
-    MAPPED   DATA(ls_delete_mapped).
-
-    IF ls_delete_data IS INITIAL.
-      COMMIT ENTITIES.
-    ELSE.
-      ROLLBACK ENTITIES.
     ENDIF.
 
   ENDMETHOD.
@@ -204,6 +166,44 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     MAPPED   DATA(ls_update_mapped).
 
     IF ls_update_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+    METHOD delete_customer.
+
+    MODIFY ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    DELETE FROM VALUE #( (
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
+    ) )
+    FAILED   DATA(ls_delete_data)
+    REPORTED DATA(ls_delete_reported)
+    MAPPED   DATA(ls_delete_mapped).
+
+    IF ls_delete_data IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+    METHOD set_to_archived.
+
+    MODIFY ENTITIES OF zdd_r_customer
+      ENTITY Customer
+      EXECUTE set_to_archived FROM VALUE #( (
+        %tky-CustomerId =  '72B8924CCC321FD08EF54B601D6B199E'
+      ) )
+     FAILED   DATA(ls_action_failed)
+     REPORTED DATA(ls_action_reported)
+     MAPPED   DATA(ls_action_mapped).
+
+    IF ls_action_failed IS INITIAL.
       COMMIT ENTITIES.
     ELSE.
       ROLLBACK ENTITIES.
