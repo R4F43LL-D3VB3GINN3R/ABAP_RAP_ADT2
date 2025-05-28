@@ -15,10 +15,15 @@ authorization master ( instance )
 
   field ( numbering : managed, readonly : update ) CustomerId;
 
+  validation validate_gender on save { field Gender; create; update; }
+
+  determination determine_website on modify { create; }
+
   mapping for zrla_customer corresponding {
     CustomerId = customer_id;
     FirstName  = firstname;
     LastName   = lastname;
     Archived   = archived;
+    Gender     = gender;
   }
 }
