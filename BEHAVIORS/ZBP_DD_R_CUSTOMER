@@ -1,5 +1,5 @@
 managed implementation in class zbp_dd_r_customer unique;
-strict ( 2 );
+strict ( 1 );
 
 define behavior for ZDD_R_CUSTOMER alias Customer
 persistent table zrla_customer
@@ -11,11 +11,14 @@ authorization master ( instance )
   update;
   delete;
 
+  action set_to_archived;
+
   field ( numbering : managed, readonly : update ) CustomerId;
 
   mapping for zrla_customer corresponding {
     CustomerId = customer_id;
     FirstName  = firstname;
     LastName   = lastname;
+    Archived   = archived;
   }
 }
