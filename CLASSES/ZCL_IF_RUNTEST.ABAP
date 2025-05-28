@@ -36,20 +36,30 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     MODIFY ENTITIES OF zdd_r_customer
       ENTITY Customer
       EXECUTE set_to_archived FROM VALUE #( (
-        %tky-CustomerId =  'FA2C5161A2031FD08EB0F813B024AA03'
-      ) ).
+        %tky-CustomerId =  '72B8924CCC321FD08EF54B601D6B199E'
+      ) )
+     FAILED   DATA(ls_action_failed)
+     REPORTED DATA(ls_action_reported)
+     MAPPED   DATA(ls_action_mapped).
+
+    IF ls_action_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
 
   ENDMETHOD.
 
   METHOD if_oo_adt_classrun~main.
 
-    generate_customers( ).
+*    generate_customers( ).
 *    create_customer1( ).
 *    create_customer2( ).
 *    read_customer1( ).
 *    read_customer2( ).
 *    update_customer( ).
 *    delete_customer( ).
+    set_to_archived( ).
 
     IF sy-subrc EQ 0.
       out->write( | OK | ).
@@ -62,7 +72,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     MODIFY ENTITIES OF zdd_r_customer
     ENTITY Customer
     DELETE FROM VALUE #( (
-        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
     ) )
     FAILED   DATA(ls_delete_data)
     REPORTED DATA(ls_delete_reported)
@@ -147,7 +157,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
      ENTITY Customer
       FIELDS ( Firstname )
       WITH VALUE #( (
-        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
        ) )
       RESULT lt_read_data.
 
@@ -167,7 +177,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     ENTITY Customer
     ALL FIELDS WITH
     VALUE #( (
-        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
     ) )
     RESULT lt_read_data2.
 
@@ -185,7 +195,7 @@ CLASS zcl_if_runtest IMPLEMENTATION.
     ENTITY Customer
     UPDATE
     SET FIELDS WITH VALUE #( (
-        %tky-CustomerId = 'FA2C5161A2031FD08EB0F813B024AA03'
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
         FirstName       = 'Name Dummy'
         LastName        = 'Updated'
     ) )
@@ -221,8 +231,6 @@ CLASS zcl_if_runtest IMPLEMENTATION.
         CATCH cx_uuid_error.
           EXIT.
       ENDTRY.
-
-      CLEAR ls_customer.
 
       ls_customer-customer_id = lv_uuid.
       ls_customer-firstname   = |Name{ lv_number }|.
