@@ -47,7 +47,8 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    read_task( ).
+*    read_task( ).
+    create_task( quantity = 100 ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
@@ -56,13 +57,14 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD create_task.
 
+    set_tasks( ).
+
     CLEAR: gs_create_task,
            gt_create_tasks.
 
-    DO quantity TIMES.
-      DATA(total_lines) = lines( gt_tasks ).
-      total_lines = total_lines + 1.
+    DATA(total_lines) = lines( gt_tasks ).
 
+    DO quantity TIMES.
       gs_create_task-%cid        = go_projects->generate_uuid( ).
       gs_create_task-ID_Task     = gs_create_task-%cid.
       gs_create_task-ID_Project  = go_projects->get_project_id( ).
@@ -72,21 +74,25 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       gs_create_task-%control-Description = if_abap_behv=>mk-on.
       gs_create_task-%control-Done        = if_abap_behv=>mk-on.
       APPEND gs_create_task TO gt_create_tasks.
+      total_lines = total_lines + 1.
+    ENDDO.
 
-      MODIFY ENTITIES OF zdd_r_tasks
+    MODIFY ENTITIES OF zdd_r_tasks
       ENTITY Tasks
       CREATE FROM gt_create_tasks
       FAILED   DATA(ls_create_failed)
       REPORTED DATA(ls_create_reported)
       MAPPED   DATA(ls_create_mapped).
 
-      IF ls_create_failed IS INITIAL.
-        COMMIT ENTITIES.
-      ELSE.
-        ROLLBACK ENTITIES.
-      ENDIF.
-
-    ENDDO.
+    IF ls_create_failed IS INITIAL.
+      COMMIT ENTITIES.
+      gs_result-rc       = 0.
+      gs_result-mensagem = 'Task Created by CDS.'.
+    ELSE.
+      ROLLBACK ENTITIES.
+      gs_result-rc       = 1.
+      gs_result-mensagem = 'Impossible to Create Tasks by CDS.'.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -115,6 +121,8 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
   METHOD constructor.
 
     go_projects = NEW zcl_if_project_runtest( ).
+
+    get_data( ).
 
   ENDMETHOD.
 
