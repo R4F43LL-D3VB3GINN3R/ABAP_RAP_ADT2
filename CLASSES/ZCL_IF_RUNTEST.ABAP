@@ -1,186 +1,260 @@
-CLASS zcl_if_tasks_runtest DEFINITION
+CLASS zcl_if_runtest DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-
     INTERFACES if_oo_adt_classrun.
 
-    "methods to self object
-    METHODS constructor.
-    METHODS set_tasks.
-    METHODS get_data.
-    METHODS get_tasks
-      RETURNING VALUE(lt_tasks) TYPE ztt_tasks.
-    METHODS get_task
-      IMPORTING task_id TYPE sysuuid_x16
-      EXPORTING ls_task TYPE zst_task.
+    "CRUD OPERATIONS
+    CLASS-METHODS generate_customers.
+    CLASS-METHODS create_customer1.
+    CLASS-METHODS create_customer2.
+    CLASS-METHODS read_customer1.
+    CLASS-METHODS read_customer2.
+    CLASS-METHODS update_customer.
+    CLASS-METHODS delete_customer.
 
-    "methods crud for cds
-    METHODS read_task.
-    METHODS create_task
-      IMPORTING
-        quantity TYPE i.
+    "ACTION OPERATIONS
+    CLASS-METHODS set_to_archived.
 
-    "custom data
-    DATA: gt_tasks TYPE ztt_tasks.
-    DATA: gs_task TYPE zst_task.
-    DATA: gs_result TYPE zst_result.
-    DATA: go_projects TYPE REF TO zcl_if_project_runtest.
-
-    "cds data
-    DATA: gt_read_tasks TYPE TABLE FOR READ RESULT zdd_r_tasks,
-          gs_read_task  LIKE LINE OF gt_read_tasks.
-    DATA: gt_create_tasks TYPE TABLE FOR CREATE zdd_r_tasks,
-          gs_create_task  LIKE LINE OF gt_create_tasks.
-    DATA: gt_update_tasks TYPE TABLE FOR UPDATE zdd_r_tasks,
-          gs_update_task  LIKE LINE OF gt_update_tasks.
-    DATA: gt_delete_tasks TYPE TABLE FOR DELETE zdd_r_tasks,
-          gs_delete_task  LIKE LINE OF gt_delete_tasks.
-
+    DATA: go_runtime TYPE REF TO zcl_if_runtest.
+    DATA: gt_customers TYPE TABLE OF zrla_customer.
+    DATA: gs_customer TYPE zrla_customer.
+    DATA: gv_idcustomer TYPE zrla_customer-customer_id.
+    DATA: gv_message TYPE string.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
-CLASS zcl_if_tasks_runtest IMPLEMENTATION.
+CLASS zcl_if_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-*    read_task( ).
-    create_task( quantity = 100 ).
+*    generate_customers( ).
+*    create_customer1( ).
+*    create_customer2( ).
+*    read_customer1( ).
+*    read_customer2( ).
+    update_customer( ).
+*    delete_customer( ).
+*    set_to_archived( ).
 
-    out->write( | Operation Code: { gs_result-rc } | ).
-    out->write( | Message: { gs_result-mensagem }  | ).
+    IF sy-subrc EQ 0.
+      out->write( | OK | ).
+    ENDIF.
 
   ENDMETHOD.
 
-  METHOD create_task.
+  METHOD create_customer1.
 
-    set_tasks( ).
+    DATA: system_uuid TYPE REF TO if_system_uuid.
+    system_uuid = cl_uuid_factory=>create_system_uuid( ).
 
-    CLEAR: gs_create_task,
-           gt_create_tasks.
+    DATA: lt_create_data TYPE TABLE FOR CREATE zdd_r_customer,
+          ls_create_data LIKE LINE OF lt_create_data.
 
-    DATA(total_lines) = lines( gt_tasks ).
+    generate_customers( ).
 
-    DO quantity TIMES.
-      gs_create_task-%cid        = go_projects->generate_uuid( ).
-      gs_create_task-ID_Task     = gs_create_task-%cid.
-      gs_create_task-ID_Project  = go_projects->get_project_id( ).
-      gs_create_task-Description = | Task { total_lines } |.
-      gs_create_task-Done        = abap_false.
+    TRY.
+        DATA(lv_uuid) = system_uuid->create_uuid_x16( ).
+      CATCH cx_uuid_error.
+        EXIT.
+    ENDTRY.
 
-      gs_create_task-%control-Description = if_abap_behv=>mk-on.
-      gs_create_task-%control-Done        = if_abap_behv=>mk-on.
-      APPEND gs_create_task TO gt_create_tasks.
-      total_lines = total_lines + 1.
-    ENDDO.
+    ls_create_data-%cid       = lv_uuid.
+    ls_create_data-Firstname  = 'Dummy'.
+    ls_create_data-Lastname   = 'Dumb'.
+    ls_create_data-Gender     = 'M'.
 
-    MODIFY ENTITIES OF zdd_r_tasks
-      ENTITY Tasks
-      CREATE FROM gt_create_tasks
-      FAILED   DATA(ls_create_failed)
-      REPORTED DATA(ls_create_reported)
-      MAPPED   DATA(ls_create_mapped).
+    ls_create_data-%control-Firstname = if_abap_behv=>mk-on.
+    ls_create_data-%control-LastName  = if_abap_behv=>mk-on.
+    ls_create_data-%control-Gender    = if_abap_behv=>mk-on.
 
-    IF ls_create_failed IS INITIAL.
+    APPEND ls_create_data TO lt_create_data.
+
+    MODIFY ENTITIES OF zdd_r_customer
+     ENTITY Customer
+     CREATE FROM lt_create_data
+     FAILED   DATA(ls_create_failed)
+     REPORTED DATA(ls_create_reported)
+     MAPPED   DATA(ls_create_mapped).
+
+    "get response for validation
+    COMMIT ENTITIES RESPONSE OF zdd_r_customer REPORTED DATA(response).
+
+    IF ls_create_failed IS INITIAL AND response IS INITIAL.
       COMMIT ENTITIES.
-      gs_result-rc       = 0.
-      gs_result-mensagem = 'Task Created by CDS.'.
     ELSE.
       ROLLBACK ENTITIES.
-      gs_result-rc       = 1.
-      gs_result-mensagem = 'Impossible to Create Tasks by CDS.'.
     ENDIF.
 
   ENDMETHOD.
 
-  METHOD read_task.
+  METHOD create_customer2.
 
-    CLEAR gt_read_tasks.
+    generate_customers( ).
 
-    READ ENTITIES OF zdd_r_tasks
-    ENTITY Tasks
-    ALL FIELDS WITH VALUE #( (
-     ID_Task    = '72B8924CCC321FD08F918F8748F7199E'
-     ID_Project = '72B8924CCC321FD08F90A7FD36E5399E' ) )
-    RESULT gt_read_tasks.
+    MODIFY ENTITIES OF zdd_r_customer
+     ENTITY Customer
+      CREATE AUTO FILL CID
+      SET FIELDS WITH VALUE #( (
+       FirstName = 'Dummy2'
+       LastName  = 'Dumb2'
+       ) )
+      FAILED   DATA(ls_create_failed2)
+      REPORTED DATA(ls_create_reported2)
+      MAPPED   DATA(ls_create_mapped2).
 
-    "output operations
-    IF gt_read_tasks IS NOT INITIAL.
-      gs_result-rc       = 0.
-      gs_result-mensagem = 'Tasks Loaded.'.
+    IF ls_create_failed2 IS NOT INITIAL.
+      COMMIT ENTITIES.
     ELSE.
-      gs_result-rc       = 1.
-      gs_result-mensagem = 'Impossible to Load Tasks.'.
+      ROLLBACK ENTITIES.
     ENDIF.
 
   ENDMETHOD.
 
-  METHOD constructor.
+  METHOD read_customer1.
 
-    go_projects = NEW zcl_if_project_runtest( ).
+    DATA: lt_read_data TYPE TABLE FOR READ RESULT zdd_r_customer.
 
-    get_data( ).
+    READ ENTITIES OF zdd_r_customer
+     ENTITY Customer
+      FIELDS ( Firstname )
+      WITH VALUE #( (
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
+       ) )
+      RESULT lt_read_data.
+
+    IF lt_read_data IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
 
   ENDMETHOD.
 
-  METHOD set_tasks.
+  METHOD read_customer2.
 
-    "set number of projects
-    DATA: lt_index TYPE TABLE OF i.
-    DATA: lv_num TYPE i VALUE 1.
-    DO 25 TIMES.
-      APPEND lv_num TO lt_index.
-      lv_num = lv_num + 1.
-    ENDDO.
+    DATA: lt_read_data2 TYPE TABLE FOR READ RESULT zdd_r_customer.
 
-    "fill database table with tasks
-    DATA: ls_task TYPE ztable_task.
-    DATA: lt_tasks TYPE TABLE OF ztable_task.
+    READ ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    ALL FIELDS WITH
+    VALUE #( (
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
+    ) )
+    RESULT lt_read_data2.
 
-    DELETE FROM ztable_task.
-    LOOP AT lt_index INTO DATA(index).
-      ls_task-project_id  = go_projects->get_project_id( ).
-      ls_task-task_id     = go_projects->generate_uuid( ).
-      ls_task-description = | Task { index } |.
-      ls_task-done        = abap_false.
-      APPEND ls_task TO lt_tasks.
+    IF lt_read_data2 IS NOT INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD update_customer.
+
+    MODIFY ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    UPDATE
+    SET FIELDS WITH VALUE #( (
+        %tky-CustomerId = '72B8924CCC321FD08EFD84474B4F199E'
+        FirstName       = 'Name_Dummy2'
+        LastName        = 'Updated2'
+    ) )
+    FAILED   DATA(ls_update_failed)
+    REPORTED DATA(ls_update_reported)
+    MAPPED   DATA(ls_update_mapped).
+
+    IF ls_update_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD delete_customer.
+
+    MODIFY ENTITIES OF zdd_r_customer
+    ENTITY Customer
+    DELETE FROM VALUE #( (
+        %tky-CustomerId = '72B8924CCC321FD08EF54B601D6B199E'
+    ) )
+    FAILED   DATA(ls_delete_data)
+    REPORTED DATA(ls_delete_reported)
+    MAPPED   DATA(ls_delete_mapped).
+
+    IF ls_delete_data IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD set_to_archived.
+
+    MODIFY ENTITIES OF zdd_r_customer
+      ENTITY Customer
+      EXECUTE set_to_archived FROM VALUE #( (
+        %tky-CustomerId =  '72B8924CCC321FD08EFD84474B4F799E'
+      ) )
+     FAILED   DATA(ls_action_failed)
+     REPORTED DATA(ls_action_reported)
+     MAPPED   DATA(ls_action_mapped).
+
+    IF ls_action_failed IS INITIAL.
+      COMMIT ENTITIES.
+    ELSE.
+      ROLLBACK ENTITIES.
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD generate_customers.
+
+    DATA: system_uuid TYPE REF TO if_system_uuid.
+    DATA: lt_dummy TYPE TABLE OF i.
+    DATA: lv_uuid TYPE sysuuid_x16.
+    DATA: ls_customer TYPE zrla_customer.
+    DATA: lt_customers TYPE TABLE OF zrla_customer.
+
+    lt_dummy = VALUE #( ( 1 ) ( 2 ) ( 3 ) ( 4 ) ( 5 ) ).
+    DELETE FROM zrla_customer.
+
+    system_uuid = cl_uuid_factory=>create_system_uuid( ).
+
+    LOOP AT lt_dummy INTO DATA(lv_number).
+
+      TRY.
+          lv_uuid = system_uuid->create_uuid_x16( ).
+        CATCH cx_uuid_error.
+          EXIT.
+      ENDTRY.
+
+      ls_customer-customer_id = lv_uuid.
+      ls_customer-firstname   = |Name{ lv_number }|.
+      ls_customer-lastname    = |Lastname{ lv_number }|.
+      ls_customer-title       = 'Sr.'.
+      ls_customer-phone       = |+35191234{ lv_number }|.
+      ls_customer-email       = |cliente{ lv_number }@teste.com|.
+      ls_customer-gender      = 'M'.                          " ou 'F'
+      ls_customer-website     = |www.site{ lv_number }.com|.
+      ls_customer-createdby   = cl_abap_context_info=>get_user_technical_name( ).
+      ls_customer-createdat   = cl_abap_context_info=>get_system_date( ).
+      ls_customer-changedby   = cl_abap_context_info=>get_user_technical_name( ).
+      ls_customer-changedat   = cl_abap_context_info=>get_system_date( ).
+      ls_customer-birthdate   = |1990{ lv_number }01|.
+      ls_customer-archived    = ''.
+      APPEND ls_customer TO lt_customers.
+      CLEAR ls_customer.
+
     ENDLOOP.
-    MODIFY ztable_task FROM TABLE @lt_tasks.
 
-    "output operations
-    IF lt_tasks IS NOT INITIAL.
-      gs_result-rc       = '0'.
-      gs_result-mensagem = 'Tasks generated with sucessfull.'.
-    ELSE.
-      gs_result-rc       = '1'.
-      gs_result-mensagem = 'Impossible to generate tasks.'.
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD get_data.
-
-    SELECT *
-    FROM ztable_task
-    INTO CORRESPONDING FIELDS OF TABLE @gt_tasks.
-
-  ENDMETHOD.
-
-  METHOD get_tasks.
-
-    lt_tasks = gt_tasks.
-
-  ENDMETHOD.
-
-  METHOD get_task.
-
-    READ TABLE gt_tasks INTO gs_task WITH KEY task_id = task_id.
-    IF sy-subrc EQ 0.
-      ls_task = gs_task.
-    ENDIF.
+    MODIFY zrla_customer FROM TABLE @lt_customers.
 
   ENDMETHOD.
 
