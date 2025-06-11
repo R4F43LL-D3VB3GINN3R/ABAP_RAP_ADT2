@@ -1,0 +1,19 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Projection for Customer'
+@Metadata.ignorePropagatedAnnotations: true
+define root view entity ZDD_P_CUSTOMER as projection on ZDD_R_CUSTOMER
+{
+    key CustomerId,
+        Firstname,
+        Lastname,
+        Title,
+        Phone,
+        Email,
+        Gender,
+        Website,
+        Createdby,
+        Createdat,
+        Changedby,
+        Changedat,
+        Birthdate   
+}
