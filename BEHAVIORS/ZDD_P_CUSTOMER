@@ -1,4 +1,4 @@
-projection;
+projection; 
 strict ( 1 );
 
 define behavior for ZDD_P_CUSTOMER //alias <alias_name>
