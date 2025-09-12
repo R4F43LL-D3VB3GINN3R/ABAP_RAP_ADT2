@@ -19,5 +19,6 @@ define table zrla_customer {
   changedby       : syuname;
   changedat       : timestamp;
   birthdate       : datum;
+  archived        : abap.char(1);
 
 }
