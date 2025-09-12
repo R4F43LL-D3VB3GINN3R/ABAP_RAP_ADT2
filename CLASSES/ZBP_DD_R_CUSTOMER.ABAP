@@ -9,8 +9,6 @@ CLASS lhc_Customer DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR customer~determine_website.
     METHODS validate_gender FOR VALIDATE ON SAVE
       IMPORTING keys FOR customer~validate_gender.
-    METHODS get_instance_features FOR INSTANCE FEATURES
-      IMPORTING keys REQUEST requested_features FOR customer RESULT result.
 
 ENDCLASS.
 
