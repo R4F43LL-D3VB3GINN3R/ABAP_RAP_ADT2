@@ -1,8 +1,6 @@
 CLASS lhc_Customer DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
-    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
-      IMPORTING keys REQUEST requested_authorizations FOR Customer RESULT result.
     METHODS set_to_archived FOR MODIFY
       IMPORTING keys FOR ACTION customer~set_to_archived.
     METHODS determine_website FOR DETERMINE ON MODIFY
@@ -13,9 +11,6 @@ CLASS lhc_Customer DEFINITION INHERITING FROM cl_abap_behavior_handler.
 ENDCLASS.
 
 CLASS lhc_Customer IMPLEMENTATION.
-
-  METHOD get_instance_authorizations.
-  ENDMETHOD.
 
   METHOD set_to_archived.
 
