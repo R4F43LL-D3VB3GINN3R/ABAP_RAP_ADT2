@@ -9,7 +9,7 @@ authorization master ( instance )
 {
   create;
   update;
-  delete; 
+  delete;
 
   action set_to_archived;
 
