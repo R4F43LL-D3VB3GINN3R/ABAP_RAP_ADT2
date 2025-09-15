@@ -1,1 +1,43 @@
-
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: { 
+typeName: 'Customer',
+typeNamePlural: 'Customers',
+title.value: 'Lastname',
+description.value: 'Firstname'   
+}
+annotate view ZDD_P_CUSTOMER
+    with 
+{
+    
+    @UI.hidden: true
+    CustomerId;
+    
+    @EndUserText.label: 'Firstname'
+    @UI.lineItem: [ { position: 10, importance: #HIGH} ]
+    @UI.selectionField: [ { position: 10 } ]
+    Firstname;
+    
+    @EndUserText.label: 'Firstname'
+    @UI.lineItem: [ { position: 20, importance: #HIGH} ]
+    @UI.selectionField: [ { position: 10 } ]
+    Lastname;
+    
+    @EndUserText.label: 'Title'
+    Title;
+    
+    @EndUserText.label: 'Phone'
+    @UI.lineItem: [ { position: 40, importance: #HIGH} ]
+    Phone;
+    
+    @EndUserText.label: 'Email'
+    @UI.lineItem: [ { position: 50, importance: #HIGH} ]
+    @UI.selectionField: [ { position: 10 } ]
+    Email;
+    
+    @EndUserText.label: 'Gender'
+    Gender;
+    
+    @EndUserText.label: 'Website'
+    Website;
+    
+}
