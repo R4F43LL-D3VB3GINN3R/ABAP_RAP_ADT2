@@ -1,6 +1,4 @@
 @EndUserText.label: 'Service for Customer'
-define service ZSP_CUSTOMER_UI
-{
-    expose ZDD_P_CUSTOMER;
-    
+define service ZSP_CUSTOMER_UI {
+  expose ZDD_P_CUSTOMER as Z_P_CUSTOMER;
 }
