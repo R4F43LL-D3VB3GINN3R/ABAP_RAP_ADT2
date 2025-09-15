@@ -31,12 +31,12 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-*    generate_customers( ).
+    generate_customers( ).
 *    create_customer1( ).
 *    create_customer2( ).
 *    read_customer1( ).
 *    read_customer2( ).
-    update_customer( ).
+*    update_customer( ).
 *    delete_customer( ).
 *    set_to_archived( ).
 
@@ -216,18 +216,19 @@ CLASS zcl_if_runtest IMPLEMENTATION.
 
   METHOD generate_customers.
 
+    DATA: lv_number TYPE i VALUE 1.
+
     DATA: system_uuid TYPE REF TO if_system_uuid.
     DATA: lt_dummy TYPE TABLE OF i.
     DATA: lv_uuid TYPE sysuuid_x16.
     DATA: ls_customer TYPE zrla_customer.
     DATA: lt_customers TYPE TABLE OF zrla_customer.
 
-    lt_dummy = VALUE #( ( 1 ) ( 2 ) ( 3 ) ( 4 ) ( 5 ) ).
     DELETE FROM zrla_customer.
 
     system_uuid = cl_uuid_factory=>create_system_uuid( ).
 
-    LOOP AT lt_dummy INTO DATA(lv_number).
+    DO 20 TIMES.
 
       TRY.
           lv_uuid = system_uuid->create_uuid_x16( ).
@@ -244,17 +245,20 @@ CLASS zcl_if_runtest IMPLEMENTATION.
       ls_customer-gender      = 'M'.                          " ou 'F'
       ls_customer-website     = |www.site{ lv_number }.com|.
       ls_customer-createdby   = cl_abap_context_info=>get_user_technical_name( ).
-      ls_customer-createdat   = cl_abap_context_info=>get_system_date( ).
+      GET TIME STAMP FIELD ls_customer-createdat.
       ls_customer-changedby   = cl_abap_context_info=>get_user_technical_name( ).
-      ls_customer-changedat   = cl_abap_context_info=>get_system_date( ).
-      ls_customer-birthdate   = |1990{ lv_number }01|.
+      GET TIME STAMP FIELD ls_customer-changedat.
+      ls_customer-birthdate   = '20250930'.
       ls_customer-archived    = ''.
       APPEND ls_customer TO lt_customers.
       CLEAR ls_customer.
 
-    ENDLOOP.
+      lv_number = lv_number + 1.
+
+    ENDDO.
 
     MODIFY zrla_customer FROM TABLE @lt_customers.
+    CLEAR lv_number.
 
   ENDMETHOD.
 
