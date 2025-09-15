@@ -7,10 +7,15 @@ CLASS lhc_Customer DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR customer~determine_website.
     METHODS validate_gender FOR VALIDATE ON SAVE
       IMPORTING keys FOR customer~validate_gender.
+    METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
+      IMPORTING keys REQUEST requested_authorizations FOR Customer RESULT result.
 
 ENDCLASS.
 
 CLASS lhc_Customer IMPLEMENTATION.
+
+  METHOD get_instance_authorizations.
+  ENDMETHOD.
 
   METHOD set_to_archived.
 
@@ -83,25 +88,6 @@ CLASS lhc_Customer IMPLEMENTATION.
       ENDIF.
 
     ENDLOOP.
-
-  ENDMETHOD.
-
-  METHOD get_instance_features.
-
-    READ ENTITY IN LOCAL MODE zdd_r_customer
-    FIELDS ( Archived Birthdate ) WITH CORRESPONDING #( keys )
-    RESULT DATA(lt_customers).
-
-    result = VALUE #(
-    FOR <customer> IN lt_customers
-      (
-        %tky = <customer>-%tky
-        %features-%update = COND #(
-          WHEN <customer>-Archived = abap_true
-          THEN if_abap_behv=>fc-o-disabled
-        )
-      )
-    ).
 
   ENDMETHOD.
 
