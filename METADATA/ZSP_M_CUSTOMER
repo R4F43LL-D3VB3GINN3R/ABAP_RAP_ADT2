@@ -1,43 +1,96 @@
 @Metadata.layer: #CUSTOMER
 @UI.headerInfo: { 
-typeName: 'Customer',
-typeNamePlural: 'Customers',
-title.value: 'Lastname',
-description.value: 'Firstname'   
+  typeName: 'Customer',
+  typeNamePlural: 'Customers',
+  title.value: 'Lastname',
+  description.value: 'Firstname'   
 }
 annotate view ZDD_P_CUSTOMER
     with 
 {
-    
-    @UI.hidden: true
-    CustomerId;
-    
-    @EndUserText.label: 'Firstname'
-    @UI.lineItem: [ { position: 10, importance: #HIGH} ]
-    @UI.selectionField: [ { position: 10 } ]
-    Firstname;
-    
-    @EndUserText.label: 'Firstname'
-    @UI.lineItem: [ { position: 20, importance: #HIGH} ]
-    @UI.selectionField: [ { position: 10 } ]
-    Lastname;
-    
-    @EndUserText.label: 'Title'
-    Title;
-    
-    @EndUserText.label: 'Phone'
-    @UI.lineItem: [ { position: 40, importance: #HIGH} ]
-    Phone;
-    
-    @EndUserText.label: 'Email'
-    @UI.lineItem: [ { position: 50, importance: #HIGH} ]
-    @UI.selectionField: [ { position: 10 } ]
-    Email;
-    
-    @EndUserText.label: 'Gender'
-    Gender;
-    
-    @EndUserText.label: 'Website'
-    Website;
-    
+
+  @UI.facet: [{
+      id: 'GENERALINFORMATION',
+      type: #COLLECTION,
+      position: 10,
+      label: 'General Information'
+    }, {
+      id: 'PERSONALINFORMATION',
+      type: #IDENTIFICATION_REFERENCE,
+      parentId: 'GENERALINFORMATION',
+      label: 'Personal Information'
+    }, {
+      id: 'COMMUNICATION',
+      type: #FIELDGROUP_REFERENCE,
+      parentId: 'GENERALINFORMATION',
+      targetQualifier: 'COMM',
+      label: 'Communication'
+    }, {
+      id: 'ADMINISTRATION',
+      type: #COLLECTION,
+      position: 10,
+      label: 'Administration'
+    }, {
+      id: 'ADMINISTRATIONINFORMATION',
+      type: #FIELDGROUP_REFERENCE,
+      parentId: 'ADMINISTRATION',
+      targetQualifier: 'ADMIN',
+      label: 'Administration Information'
+  }
+  ]
+
+  @UI.hidden: true
+  CustomerId;
+  
+  @EndUserText.label: 'Firstname'
+  @UI.lineItem: [ { position: 10, importance: #HIGH} ]
+  @UI.identification: [{ position: 10 }]
+  Firstname;
+  
+  @EndUserText.label: 'Lastname'
+  @UI.lineItem: [ { position: 20, importance: #HIGH} ]
+  @UI.identification: [{ position: 20 }]
+  @UI.selectionField: [ { position: 10 } ]
+  Lastname;
+  
+  @EndUserText.label: 'Title'
+  @UI.identification: [{ position: 30 }]
+  Title;
+  
+  @EndUserText.label: 'Phone'
+  @UI.lineItem: [ { position: 40, importance: #HIGH} ]
+  @UI.fieldGroup: [{ qualifier: 'COMM', position: 10 }]
+  Phone;
+  
+  @EndUserText.label: 'Email'
+  @UI.lineItem: [ { position: 50, importance: #HIGH} ]
+  @UI.fieldGroup: [{ qualifier: 'COMM', position: 20 }]
+  @UI.selectionField: [ { position: 30 } ]
+  Email;
+  
+  @EndUserText.label: 'Gender'
+  @UI.identification: [{ position: 60 }]
+  Gender;
+  
+  @EndUserText.label: 'Website'
+  @UI.fieldGroup: [{ qualifier: 'COMM', position: 30 }]
+  @UI.selectionField: [ { position: 40 } ]
+  Website;
+
+  @EndUserText.label: 'Created By'
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 10 }]
+  Createdby;
+
+  @EndUserText.label: 'Created At'
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 20 }]
+  Createdat;
+
+  @EndUserText.label: 'Changed By'
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 30 }]
+  Changedby;
+
+  @EndUserText.label: 'Changed At'
+  @UI.fieldGroup: [{ qualifier: 'ADMIN', position: 40 }]
+  Changedat;
+
 }
