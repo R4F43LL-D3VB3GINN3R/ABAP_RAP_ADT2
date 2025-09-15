@@ -1,15 +1,22 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Projection for Customer'
-@Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
+@Search.searchable: true
+
 define root view entity ZDD_P_CUSTOMER
   provider contract transactional_query as projection on ZDD_R_CUSTOMER
 {
     key CustomerId,
+    
+        @Search.defaultSearchElement: true
         Firstname,
+        
+        @Search.defaultSearchElement: true
         Lastname,
         Title,
         Phone,
+        
+        @Search.defaultSearchElement: true
         Email,
         Gender,
         Website,
